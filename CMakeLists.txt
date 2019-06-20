@@ -1,24 +1,24 @@
 ##---------------------------------------------------------------------------
 ## Author:      Mike Rossiter with massive help from Sean D'Epagnier
-## Copyright:   
+## Copyright:
 ## License:     GPLv3
 ##---------------------------------------------------------------------------
- 
+
 # define minimum cmake version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2)
 
-PROJECT(PhotoLayer_pi)
-SET(PACKAGE_NAME PhotoLayer_pi)
-SET(VERBOSE_NAME PhotoLayer)
-SET(TITLE_NAME PhotoLayer)
+PROJECT(photolayer_pi)
+SET(PACKAGE_NAME photolayer_pi)
+SET(VERBOSE_NAME photolayer)
+SET(TITLE_NAME photolayer)
 SET(CPACK_PACKAGE_CONTACT "Mike Rossiter")
 
 SET(VERSION_MAJOR "2")
-SET(VERSION_MINOR "1.1")
+SET(VERSION_MINOR "1.2")
 
-IF (MSVC)
-    INCLUDE_DIRECTORIES(${PLUGIN_SOURCE_DIR}/include/msvc)
-ENDIF (MSVC)
+SET(NAME_SUFFIX "ov50")
+
+set (CMAKE_CXX_STANDARD 11)
 
 OPTION(PHOTOLAYER_USE_SVG "Use SVG graphics" ON)
 
@@ -40,13 +40,16 @@ IF(WIN32)
 	INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/libgeotiff-1.4.2/include)
 	INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/libgeotiff-1.4.2/libxtiff)
 	INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src/tiff-4.0.10/include)
+
+
+
 ENDIF(WIN32)
 
 SET(SRC_PHOTOLAYER
             src/PhotoLayer_pi.cpp
 	        src/PhotoLayer_pi.h
             src/PhotoLayer.cpp
-	        src/PhotoLayer.h	
+	        src/PhotoLayer.h
             src/PhotoLayerUI.cpp
             src/PhotoLayerUI.h
             src/PhotoLayerImage.cpp
@@ -58,7 +61,7 @@ SET(SRC_PHOTOLAYER
             src/wximgkap.cpp
             src/wximgkap.h
             )
-      
+
 IF(UNIX)
  INCLUDE("cmake/FindGeoTIFF.cmake")
  FIND_PACKAGE(GeoTIFF QUIET)
@@ -91,10 +94,21 @@ ELSE(GEOTIFF_FOUND)
   message (STATUS "libGeoTIFF not found, either disable the support for it or fail ro use an embedded version of it")
 ENDIF(GEOTIFF_FOUND)
 
+IF(LIBTIFF_FOUND)
+  message (STATUS "Building with system libTIFF")
+  INCLUDE_DIRECTORIES(${LIBTIFF_INCLUDE_DIR})
+  TARGET_LINK_LIBRARIES(${PACKAGE_NAME} ${LIBTIFF_LIBRARY})
+ELSE(LIBTIFF_FOUND)
+  message (STATUS "libTIFF not found, either disable the support for it or fail ro use an embedded version of it")
+ENDIF(LIBTIFF_FOUND)
+
+
+IF(WIN32)
 FIND_LIBRARY(geotff ${CMAKE_SOURCE_DIR}/src/libgeotiff-1.4.2)
 FIND_LIBRARY(libtiff ${CMAKE_SOURCE_DIR}/src/tiff-4.0.10)
 
 TARGET_LINK_LIBRARIES(${PACKAGE_NAME} geotiff libtiff)
+ENDIF(WIN32)
 
 INCLUDE("cmake/PluginInstall.cmake")
 INCLUDE("cmake/PluginLocalization.cmake")

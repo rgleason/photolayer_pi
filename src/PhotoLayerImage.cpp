@@ -41,6 +41,8 @@ WX_DEFINE_LIST(PhotoLayerImageCoordinateList);
 #define GL_TEXTURE_RECTANGLE_ARB          0x84F5
 #endif
 
+using namespace std;
+
 static int texture_format;
 
 static GLboolean QueryExtension( const char *extName )
@@ -127,7 +129,7 @@ void PhotoLayerImage::MakePhasedImage()
     unsigned char *phasedimgend = dd + linelen*m_phasedimg.GetHeight();
 
     double skewpos = 0;
-    
+
     int lastphase_pos;
     unsigned char *pcb = NULL;
     if(phase_correct_line_by_line)
@@ -160,7 +162,7 @@ void PhotoLayerImage::MakePhasedImage()
             else
                 lastphase_pos = phase_pos;
         }
-        
+
         if(bfilter)
             for(int i = 0; i<linelen; i++)
                 dd[i] = d[i] < filter ? d[i] : 255;
@@ -541,7 +543,7 @@ void PhotoLayerImage::RenderImage(wxDC &dc, PlugIn_ViewPort *vp)
 
 #if 0
         wxImage stretchedimg = subimg.Scale(iw, ih); /* doesn't support saturated transparency, or invert */
-#else        
+#else
         unsigned char *subdata = img.GetData();
         unsigned char *stretcheddata = (unsigned char*)malloc(iw*ih*3); /* malloc needed for wximage */
         for(int y=0; y<ih; y++) {
@@ -617,12 +619,12 @@ void PhotoLayerImage::RenderImageGL(PlugIn_ViewPort *vp)
                 int toy = ty*maxtexsize;
 
                 glBindTexture(texture_format, m_gltextures[ty*m_numgltexturesw + tx]);
-        
+
                 glTexParameteri( texture_format, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
                 glTexParameteri( texture_format, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
                 glTexParameteri( texture_format, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
                 glTexParameteri( texture_format, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-        
+
                 unsigned char *data = img.GetData();
                 for(unsigned int y=0; y<th; y++) {
                     for(unsigned int x=0; x<tw; x++) {
@@ -633,7 +635,7 @@ void PhotoLayerImage::RenderImageGL(PlugIn_ViewPort *vp)
                             idata[p + 0] = r,  idata[p + 1] = g, idata[p + 2] = b;
                         else
                             idata[p + 0] = 255-r,  idata[p + 1] = 255-g, idata[p + 2] = 255-b;
-                
+
                         wxUint8 a = 255 + -(r+g+b)/3*m_iWhiteTransparency/255; /* white alpha */
                         idata[p+3] = a;
                     }
@@ -645,7 +647,7 @@ void PhotoLayerImage::RenderImageGL(PlugIn_ViewPort *vp)
         }
         delete [] idata;
     }
-        
+
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT);
 
     glEnable(texture_format);
@@ -660,7 +662,7 @@ void PhotoLayerImage::RenderImageGL(PlugIn_ViewPort *vp)
             unsigned int tw = (tx == m_numgltexturesw-1) ? w - tx*maxtexsize : maxtexsize;
 
             glBindTexture(texture_format, m_gltextures[ty*m_numgltexturesw + tx]);
-    
+
             /* interpolate coordinates correctly even with rotation */
             double mtx = maxtexsize*tx, mty = maxtexsize*ty;
             wxPoint p1 = p[0], p2 = p[1], p3 = p[2];
@@ -682,6 +684,6 @@ void PhotoLayerImage::RenderImageGL(PlugIn_ViewPort *vp)
             glEnd();
         }
     }
-    
+
     glPopAttrib();
 }

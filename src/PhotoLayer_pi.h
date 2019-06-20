@@ -37,7 +37,7 @@
 #define     MY_API_VERSION_MINOR    13
 
 #define     MY_PLUGIN_VERSION_MAJOR    2
-#define     MY_PLUGIN_VERSION_MINOR    1.1
+#define     MY_PLUGIN_VERSION_MINOR    1.2
 
 #define ABOUT_AUTHOR_URL "http://mikerossiter.co.uk"
 
@@ -121,6 +121,7 @@ private:
       int               m_leftclick_tool_id;
 
       void              RearrangeWindow();
+	  wxBitmap			m_panelBitmap;
 };
 
 #endif
